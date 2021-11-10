@@ -1,0 +1,1265 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "zenk-note restful API",
+        "description": "Back-end for zenk-note",
+        "contact": {
+            "name": "Raisa Supriatna",
+            "email": "supriatna.raisa.z@gmail.com"
+        },
+        "version": "1.0",
+        "license": {
+            "name": "MIT License"
+        }
+        
+    },
+    "servers": [
+        {
+            "url": "https://api.zenklot/note/"
+        }
+    ],
+    "components": {
+        "schemas": {
+            "resSuccessDataString": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "string"
+                    }
+                }
+            },
+            "resErrorArray": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "error": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "res500": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "UserAuth": {
+                "type": "apiKey",
+                "name": "token",
+                "in": "header",
+                "description": "Authentication for user"
+            }
+        }
+    },
+    "paths": {
+        "/note": {
+            "post": {
+                "description": "Add new note user",
+                "tags": [
+                    "zenk-note"
+                ],
+                "summary": "add new note",
+                "requestBody": {
+                    "description": "user input note",
+                    "required": true,
+                    "content": {
+                        "json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "tag": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "note": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "success add new note",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resSuccessDataString"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User send request body wrong format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User send with modif token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/note/{id}": {
+            "get": {
+                "tags": [
+                    "zenk-note"
+                ],
+                "description": "user access detail note",
+                "summary": "detail note",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "get detail note",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "tag": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "note": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User send with modif token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "zenk-note"
+                ],
+                "description": "user edit note",
+                "summary": "edit note",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success edit note",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resSuccessDataString"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User send request body wrong format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User send with modif token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "zenk-note"
+                ],
+                "description": "user edit note",
+                "summary": "edit note",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success edit note",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resSuccessDataString"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User send request body wrong format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User send with modif token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/profile": {
+            "get": {
+                "description": "Profile User",
+                "summary": "User Profile",
+                "tags": [
+                    "zenk-note"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "detail data user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "notes": {
+                                                    "type": "number"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User send request body wrong format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User send with modif token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "user edit profile",
+                "summary": "Edit Profile",
+                "tags": [
+                    "zenk-note"
+                ],
+                "requestBody": {
+                    "description": "user input form edit profile",
+                    "required": true,
+                    "content": {
+                        "json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "currentPassword": {
+                                        "type": "string"
+                                    },
+                                    "newPassword": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "update user success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resSuccessDataString"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/notes": {
+            "get": {
+                "tags": [
+                    "zenk-note"
+                ],
+                "description": "user has success login",
+                "summary": "home user",
+                "responses": {
+                    "200": {
+                        "description": "success get data notes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "tag": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "note": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "description": "Login User",
+                "security": [],
+                "summary": "Login User",
+                "requestBody": {
+                    "description": "User Send Data With Form Login",
+                    "required": true,
+                    "content": {
+                        "json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "email": "gozenx12@gmail.com",
+                                "password": "rahasia"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string"
+                                                },
+                                                "reftoken": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "code": 200,
+                                    "status": "ok",
+                                    "data": {
+                                        "token": "xxx",
+                                        "reftoken": "yyy"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User Wrong Format Sending Email Or Password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                },
+                                "example": {
+                                    "code": 400,
+                                    "status": "bad request",
+                                    "error": [
+                                        "email is not valid email : gozenx.gmail",
+                                        "password min length is 8 char"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Email is not found in db",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                },
+                                "example": {
+                                    "code": 400,
+                                    "status": "bad request",
+                                    "error": [
+                                        "email is not found"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "When user acces with other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Was Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                },
+                                "example": {
+                                    "code": 500,
+                                    "status": "internal server error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "security": [],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Form Daftar",
+                "description": "User register with form",
+                "requestBody": {
+                    "description": "user register in form daftar",
+                    "required": true,
+                    "content": {
+                        "json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "success create account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resSuccessDataString"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User send request body wrong format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "User input email is registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/forget-password": {
+            "post": {
+                "security": [],
+                "description": "User forget password",
+                "summary": "Forget Password",
+                "tags": [
+                    "Authentication"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "user input email in form",
+                    "content": {
+                        "json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email forget password was sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resSuccessDataString"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User send request body wrong format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User send with modif token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [],
+                "description": "User renew password",
+                "summary": "renew password",
+                "tags": [
+                    "Authentication"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "User input new password in form",
+                    "content": {
+                        "json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "description": "Token get from email"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success renew password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resSuccessDataString"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User send request body wrong format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "User send with not valid email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User send with modif token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "get": {
+                "description": "user logout",
+                "summary": "user logout",
+                "tags": [
+                    "Authentication"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email forget password was sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resSuccessDataString"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User send request body wrong format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User send with modif token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/refresh": {
+            "post": {
+                "description": "Refresh Token Expired",
+                "summary": "User REfresh Token",
+                "tags": [
+                    "Authentication"
+                ],
+                "requestBody": {
+                    "description": "User input refresh token",
+                    "required": true,
+                    "content": {
+                        "json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "refreshToken": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success refresh token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "User send request body wrong format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User send with token expired",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User send with modif token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+        "security": [
+            {
+                "UserAuth": []
+            }
+        ]
+    }
