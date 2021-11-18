@@ -6,26 +6,6 @@ import (
 	"github.com/zenklot/backend-zenknote/model/web"
 )
 
-func SendBadRequest(c *fiber.Ctx, err []string) error {
-	respon := web.ErrorResponse{
-		Code:    fiber.StatusBadRequest,
-		Message: utils.StatusMessage(fiber.StatusBadRequest),
-		Error:   err,
-	}
-
-	return c.Status(fiber.StatusBadRequest).JSON(respon)
-}
-
-func SendConflict(c *fiber.Ctx, err []string) error {
-	respon := web.ErrorResponse{
-		Code:    fiber.StatusConflict,
-		Message: utils.StatusMessage(fiber.StatusConflict),
-		Error:   err,
-	}
-
-	return c.Status(fiber.StatusConflict).JSON(respon)
-}
-
 func SendResponse(c *fiber.Ctx, code int, data interface{}) error {
 	response := web.SuccessResponse{
 		Code:    code,

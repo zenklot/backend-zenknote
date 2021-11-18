@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,33 +9,8 @@ import (
 	"github.com/zenklot/backend-zenknote/helper"
 	"github.com/zenklot/backend-zenknote/model"
 	"github.com/zenklot/backend-zenknote/model/web"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
+	"github.com/zenklot/backend-zenknote/service"
 )
-
-func hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
-}
-
-func getUserByEmail(e string) (*model.User, error) {
-	db := database.DB
-	var user model.User
-	err := db.Where(&model.User{Email: e}).Find(&user).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &user, nil
-
-}
-
-func CheckPasswordHash(hash, password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
-}
 
 func PostRegister(c *fiber.Ctx) error {
 
@@ -47,12 +21,12 @@ func PostRegister(c *fiber.Ctx) error {
 		return helper.SendErrorResponse(c, fiber.StatusUnprocessableEntity, nil)
 	}
 
-	noValid := helper.ValidUserRegister(reqUser, c)
-	if noValid != nil {
-		return helper.SendErrorResponse(c, fiber.StatusBadRequest, noValid)
+	notValid := helper.ValidReq(c, reqUser)
+	if notValid != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
 	}
 
-	hash, _ := hashPassword(reqUser.Password)
+	hash, _ := helper.HashPassword(reqUser.Password)
 	user := new(model.User)
 	user.Password = hash
 	user.Name = reqUser.Name
@@ -75,56 +49,125 @@ func PostRegister(c *fiber.Ctx) error {
 }
 
 func PostLogin(c *fiber.Ctx) error {
-	type LoginInput struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
-	var input LoginInput
+	input := web.UserLoginRequest{}
 	err := c.BodyParser(&input)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Error on login request", "data": err})
+		return helper.SendErrorResponse(c, fiber.StatusUnprocessableEntity, nil)
+	}
+
+	notValid := helper.ValidReq(c, input)
+	if notValid != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
 	}
 
 	email := input.Email
 	pass := input.Password
 
-	smail, err := getUserByEmail(email)
+	userData, err := service.GetUserByEmail(email)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"status": "error", "message": "Error on email", "data": err})
+		return helper.SendErrorResponse(c, fiber.StatusUnauthorized, helper.StringToSlice(err.Error()))
 	}
 
-	if smail == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"status": "error", "message": "User not found", "data": err})
+	if !helper.CheckPasswordHash(userData.Password, pass) {
+		return helper.SendErrorResponse(c, fiber.StatusUnauthorized, helper.StringToSlice("Password Wrong!"))
 	}
 
-	if !CheckPasswordHash(smail.Password, pass) {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"status": "error", "message": "Salah password", "data": err})
+	tokenClaims := web.TokenClaims{
+		Email: userData.Email,
 	}
-	// er := bcrypt.CompareHashAndPassword([]byte(smail.Password), []byte(pass))
-	// fmt.Println(er)
-	// if er != nil {
-	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"status": "error", "message": "Invalid password", "data": err})
-	// }
+	tokenClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Minute * 30))
 
-	type TokenClaims struct {
-		Email string `json:"email"`
-		jwt.RegisteredClaims
-	}
-
-	// Create the Claims
-	claims := TokenClaims{
-		smail.Email,
-		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 30)),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
 	tokenString, err := token.SignedString([]byte(helper.Config("KUNCI_RAHASIA")))
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"status": "error", "message": "Invalid password jwt", "data": err})
+		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
 	}
-	return c.JSON(fiber.Map{"status": "success", "message": "Success login", "data": tokenString})
+
+	refTokenClaims := web.RefreshTokenClaims{}
+	refTokenClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour * 24))
+	refToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refTokenClaims)
+	refTokenString, err := refToken.SignedString([]byte(helper.Config("KUNCI_REFRESH")))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
+	}
+	response := web.UserLoginResponse{
+		Token:        tokenString,
+		RefreshToken: refTokenString,
+	}
+
+	return helper.SendResponse(c, fiber.StatusOK, response)
+}
+
+func PostForgetPassword(c *fiber.Ctx) error {
+	input := web.UserForgetRequest{}
+
+	err := c.BodyParser(&input)
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusUnprocessableEntity, nil)
+	}
+	notValid := helper.ValidReq(c, input)
+	if notValid != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
+	}
+
+	email := input.Email
+	userData, err := service.GetUserByEmail(email)
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusUnauthorized, helper.StringToSlice(err.Error()))
+	}
+
+	tokenClaim := web.TokenClaims{
+		Email: userData.Email,
+	}
+	tokenClaim.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Minute * 30))
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaim)
+	tokenString, err := token.SignedString([]byte(helper.Config("KUNCI_RAHASIA")))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
+	}
+	tokenString = jwt.EncodeSegment([]byte(tokenString))
+	err = helper.SendMail(email, "Forget Password", "To Renew Password Clik This Link : http://[frontend web]/forget-password?token="+tokenString)
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadGateway, nil)
+	}
+
+	return helper.SendResponse(c, fiber.StatusOK, "Forget Password has been sent to "+email)
+}
+
+func PutForgetPassword(c *fiber.Ctx) error {
+	db := database.DB
+	inputToken := c.Query("token")
+	if inputToken == "" {
+		return helper.SendErrorResponse(c, fiber.StatusUnprocessableEntity, nil)
+	}
+	var err error
+	claims, err := helper.ValidateJWT(inputToken, helper.Config("KUNCI_RAHASIA"))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, helper.StringToSlice(err.Error()))
+	}
+	if claims == nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, helper.StringToSlice("Please Check your token, Token invalid"))
+	}
+	email := claims.Email
+	userData, err := service.GetUserByEmail(email)
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusUnauthorized, helper.StringToSlice(err.Error()))
+	}
+
+	inputPassword := web.UserRenewPassword{}
+	err = c.BodyParser(&inputPassword)
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusUnprocessableEntity, nil)
+	}
+	notValid := helper.ValidReq(c, inputPassword)
+	if notValid != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
+	}
+	passHash, _ := helper.HashPassword(inputPassword.Password)
+	result := db.Model(&userData).Update("password", passHash)
+	if result.RowsAffected != 1 {
+		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
+	}
+	return helper.SendResponse(c, fiber.StatusOK, email)
+
 }
