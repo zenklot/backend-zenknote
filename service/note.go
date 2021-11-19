@@ -7,10 +7,9 @@ import (
 	"github.com/zenklot/backend-zenknote/model"
 )
 
-func GetUserByEmail(e string) (*model.User, error) {
-
-	var user model.User
-	result := database.DB.Where(&model.User{Email: e}).Find(&user)
+func GetNotesByEmail(e string) (*[]model.Note, error) {
+	note := []model.Note{}
+	result := database.DB.Where(&model.Note{Email: e}).Find(&note)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -18,13 +17,13 @@ func GetUserByEmail(e string) (*model.User, error) {
 	if result.RowsAffected == 0 {
 		return nil, errors.New("this email is not registered")
 	}
-	return &user, nil
+	return &note, nil
 }
 
-func CreateUser(data *model.User) (*model.User, error) {
+func CreateNote(data *model.Note) (*model.Note, error) {
 	result := database.DB.Create(data).Error
 	if result != nil {
-		return nil, errors.New("email address already registered")
+		return nil, errors.New(result.Error())
 	}
 	return data, nil
 }

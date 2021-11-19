@@ -1,8 +1,12 @@
 package model
 
+import "gorm.io/gorm"
+
 type Note struct {
-	Id    int      `gorm:"autoIncrement;not null;uniqueIndex;primaryKey" json:"id"`
-	Title string   `gorm:"not null" json:"title"`
-	Tag   []string `json:"tag"`
-	Note  string   `gorm:"not null" json:"note"`
+	gorm.Model
+	Id    string `gorm:"not null;uniqueIndex;primaryKey"`
+	Title string `gorm:"not null"`
+	Tags  string
+	Note  string `gorm:"not null"`
+	Email string `gorm:"not null"`
 }

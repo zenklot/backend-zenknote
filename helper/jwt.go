@@ -8,6 +8,15 @@ import (
 	"github.com/zenklot/backend-zenknote/model/web"
 )
 
+func CreateJWT(claims jwt.Claims, key string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(key))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
 func ValidateJWT(inputToken string, key string) (*web.TokenClaims, error) {
 	var claims *web.TokenClaims
 	var err error
@@ -24,7 +33,6 @@ func ValidateJWT(inputToken string, key string) (*web.TokenClaims, error) {
 			}
 		}
 	}()
-
 	asli := strings.Contains(inputToken, ".")
 	if !asli {
 		decToken, err := jwt.DecodeSegment(inputToken)

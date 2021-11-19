@@ -13,8 +13,6 @@ import (
 )
 
 func PostRegister(c *fiber.Ctx) error {
-
-	db := database.DB
 	reqUser := new(web.UserCreateRequest)
 	err := c.BodyParser(reqUser)
 	if err != nil {
@@ -32,19 +30,19 @@ func PostRegister(c *fiber.Ctx) error {
 	user.Name = reqUser.Name
 	user.Email = reqUser.Email
 
-	result := db.Create(&user).Error
-	if result != nil {
-		return helper.SendErrorResponse(c, fiber.StatusConflict, helper.StringToSlice("Email address has been registered!"))
+	user, err = service.CreateUser(user)
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusConflict, helper.StringToSlice(err.Error()))
 	}
 
-	newUser := &web.UserCreateResponse{
+	response := &web.UserCreateResponse{
 		Email:     user.Email,
 		Name:      user.Name,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
 
-	return helper.SendResponse(c, fiber.StatusCreated, newUser)
+	return helper.SendResponse(c, fiber.StatusCreated, response)
 
 }
 
@@ -75,18 +73,15 @@ func PostLogin(c *fiber.Ctx) error {
 	tokenClaims := web.TokenClaims{
 		Email: userData.Email,
 	}
-	tokenClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Minute * 30))
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
-	tokenString, err := token.SignedString([]byte(helper.Config("KUNCI_RAHASIA")))
+	tokenClaims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Minute * 30))
+	tokenString, err := helper.CreateJWT(tokenClaims, helper.Config("KUNCI_RAHASIA"))
 	if err != nil {
 		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
 	}
-
 	refTokenClaims := web.RefreshTokenClaims{}
-	refTokenClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour * 24))
-	refToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refTokenClaims)
-	refTokenString, err := refToken.SignedString([]byte(helper.Config("KUNCI_REFRESH")))
+	refTokenClaims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour * 24))
+	refTokenString, err := helper.CreateJWT(refTokenClaims, helper.Config("KUNCI_REFRESH"))
 	if err != nil {
 		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
 	}
@@ -119,13 +114,13 @@ func PostForgetPassword(c *fiber.Ctx) error {
 	tokenClaim := web.TokenClaims{
 		Email: userData.Email,
 	}
-	tokenClaim.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Minute * 30))
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaim)
-	tokenString, err := token.SignedString([]byte(helper.Config("KUNCI_RAHASIA")))
+	tokenClaim.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Minute * 30))
+
+	token, err := helper.CreateJWT(tokenClaim, helper.Config("KUNCI_RAHASIA"))
 	if err != nil {
 		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
 	}
-	tokenString = jwt.EncodeSegment([]byte(tokenString))
+	tokenString := jwt.EncodeSegment([]byte(token))
 	err = helper.SendMail(email, "Forget Password", "To Renew Password Clik This Link : http://[frontend web]/forget-password?token="+tokenString)
 	if err != nil {
 		return helper.SendErrorResponse(c, fiber.StatusBadGateway, nil)
@@ -140,7 +135,7 @@ func PutForgetPassword(c *fiber.Ctx) error {
 	if inputToken == "" {
 		return helper.SendErrorResponse(c, fiber.StatusUnprocessableEntity, nil)
 	}
-	var err error
+
 	claims, err := helper.ValidateJWT(inputToken, helper.Config("KUNCI_RAHASIA"))
 	if err != nil {
 		return helper.SendErrorResponse(c, fiber.StatusBadRequest, helper.StringToSlice(err.Error()))
@@ -169,5 +164,51 @@ func PutForgetPassword(c *fiber.Ctx) error {
 		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
 	}
 	return helper.SendResponse(c, fiber.StatusOK, email)
+}
 
+func PostRefresh(c *fiber.Ctx) error {
+	input := web.RefreshToken{}
+	err := c.BodyParser(&input)
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusUnprocessableEntity, nil)
+	}
+	notValid := helper.ValidReq(c, input)
+	if notValid != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
+	}
+
+	inputToken := input.Refresh_Token
+	claims, err := helper.ValidateJWT(inputToken, helper.Config("KUNCI_REFRESH"))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, helper.StringToSlice(err.Error()))
+	}
+	if claims == nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, helper.StringToSlice("Please Check your token, Token invalid"))
+	}
+	email := input.Email
+	userData, err := service.GetUserByEmail(email)
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusUnauthorized, helper.StringToSlice(err.Error()))
+	}
+
+	tokenClaims := web.TokenClaims{
+		Email: userData.Email,
+	}
+	tokenClaims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Minute * 30))
+	tokenString, err := helper.CreateJWT(tokenClaims, helper.Config("KUNCI_RAHASIA"))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
+	}
+	refTokenClaims := web.RefreshTokenClaims{}
+	refTokenClaims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour * 24))
+	refTokenString, err := helper.CreateJWT(refTokenClaims, helper.Config("KUNCI_REFRESH"))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
+	}
+	response := web.UserLoginResponse{
+		Token:        tokenString,
+		RefreshToken: refTokenString,
+	}
+
+	return helper.SendResponse(c, fiber.StatusOK, response)
 }
