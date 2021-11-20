@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/zenklot/backend-zenknote/database"
 	"github.com/zenklot/backend-zenknote/helper"
 	"github.com/zenklot/backend-zenknote/model"
 	"github.com/zenklot/backend-zenknote/model/web"
@@ -125,12 +124,11 @@ func PostForgetPassword(c *fiber.Ctx) error {
 	if err != nil {
 		return helper.SendErrorResponse(c, fiber.StatusBadGateway, nil)
 	}
-
 	return helper.SendResponse(c, fiber.StatusOK, "Forget Password has been sent to "+email)
 }
 
 func PutForgetPassword(c *fiber.Ctx) error {
-	db := database.DB
+	// db := database.DB
 	inputToken := c.Query("token")
 	if inputToken == "" {
 		return helper.SendErrorResponse(c, fiber.StatusUnprocessableEntity, nil)
@@ -159,8 +157,13 @@ func PutForgetPassword(c *fiber.Ctx) error {
 		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
 	}
 	passHash, _ := helper.HashPassword(inputPassword.Password)
-	result := db.Model(&userData).Update("password", passHash)
-	if result.RowsAffected != 1 {
+	// result := db.Model(&userData).Update("password", passHash)
+	// if result.RowsAffected != 1 {
+	// 	return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
+	// }
+	userData.Password = passHash
+	_, err = service.UpdateUser(userData)
+	if err != nil {
 		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
 	}
 	return helper.SendResponse(c, fiber.StatusOK, email)

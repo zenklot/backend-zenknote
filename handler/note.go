@@ -52,7 +52,6 @@ func GetNotes(c *fiber.Ctx) error {
 
 func PostNote(c *fiber.Ctx) error {
 	email := c.Locals("email")
-	// fmt.Println(email)
 	input := web.NoteCreateRequest{}
 	err := c.BodyParser(&input)
 	if err != nil {
@@ -85,5 +84,31 @@ func PostNote(c *fiber.Ctx) error {
 		Id: notes.Id,
 	}
 
+	return helper.SendResponse(c, fiber.StatusOK, response)
+}
+
+func GetNoteById(c *fiber.Ctx) error {
+	email := c.Locals("email")
+	ids := c.Params("id")
+	id := web.NoteRequest{
+		Id: ids,
+	}
+	notValid := helper.ValidReq(c, id)
+	if notValid != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
+	}
+
+	note, err := service.GetNoteById(id.Id, email.(string))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, helper.StringToSlice(err.Error()))
+	}
+	response := web.NotesResponse{
+		Id:        note.Id,
+		Tittle:    note.Title,
+		Tags:      note.Tags,
+		Note:      note.Note,
+		CreatedAt: note.CreatedAt,
+		UpdatedAt: note.UpdatedAt,
+	}
 	return helper.SendResponse(c, fiber.StatusOK, response)
 }

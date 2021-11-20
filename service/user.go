@@ -28,3 +28,11 @@ func CreateUser(data *model.User) (*model.User, error) {
 	}
 	return data, nil
 }
+
+func UpdateUser(data *model.User) (*model.User, error) {
+	result := database.DB.Model(&data).Updates(data)
+	if result.RowsAffected != 1 {
+		return nil, result.Error
+	}
+	return data, nil
+}
