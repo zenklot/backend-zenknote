@@ -53,3 +53,11 @@ func DeleteNoteById(id string, email string) error {
 	}
 	return nil
 }
+
+func UpdateNote(data *model.Note, id, email string) (*model.Note, error) {
+	result := database.DB.Model(&data).Where(model.Note{Email: email, Id: id}).Updates(&data)
+	if result.RowsAffected != 1 {
+		return nil, result.Error
+	}
+	return data, nil
+}

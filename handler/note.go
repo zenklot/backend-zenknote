@@ -63,7 +63,7 @@ func PostNote(c *fiber.Ctx) error {
 		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
 	}
 
-	tags := strings.Split(input.Tag, ",")
+	tags := strings.Split(input.Tags, ",")
 	for i, t := range tags {
 		tags[i] = strings.ToLower(strings.Replace(t, " ", "", -1))
 	}
@@ -130,4 +130,48 @@ func DeleteNote(c *fiber.Ctx) error {
 
 	fmt.Println(err)
 	return helper.SendResponse(c, fiber.StatusNoContent, nil)
+}
+
+func PutNote(c *fiber.Ctx) error {
+	email := c.Locals("email")
+	id := c.Params("id")
+
+	input := web.NoteUpdateRequest{}
+	err := c.BodyParser(&input)
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusUnprocessableEntity, nil)
+	}
+
+	notValid := helper.ValidReq(c, input)
+	if notValid != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
+	}
+
+	tags := strings.Split(input.Tags, ",")
+	for i, t := range tags {
+		tags[i] = strings.ToLower(strings.Replace(t, " ", "", -1))
+	}
+	tag := strings.Join(tags, ",")
+
+	newNote := model.Note{
+		Title: input.Title,
+		Tags:  tag,
+		Note:  input.Note,
+	}
+
+	upNote, err := service.UpdateNote(&newNote, id, email.(string))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
+	}
+
+	response := web.NoteUpdateResponse{
+		Id:        id,
+		Title:     upNote.Title,
+		Tags:      upNote.Tags,
+		Note:      upNote.Note,
+		UpdatedAt: upNote.UpdatedAt,
+	}
+
+	return helper.SendResponse(c, fiber.StatusOK, response)
+
 }
