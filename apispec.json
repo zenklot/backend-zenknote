@@ -26,7 +26,7 @@
                     "code": {
                         "type": "number"
                     },
-                    "status": {
+                    "message": {
                         "type": "string"
                     },
                     "data": {
@@ -40,7 +40,7 @@
                     "code": {
                         "type": "number"
                     },
-                    "status": {
+                    "message": {
                         "type": "string"
                     },
                     "error": {
@@ -57,7 +57,7 @@
                     "code": {
                         "type": "number"
                     },
-                    "status": {
+                    "message": {
                         "type": "string"
                     }
                 }
@@ -136,8 +136,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "User send with modif token",
+                    "409": {
+                        "description": "conflict",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -146,8 +146,8 @@
                             }
                         }
                     },
-                    "405": {
-                        "description": "User access this path using other method",
+                    "422": {
+                        "description": "user not input form",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -186,6 +186,7 @@
                         "required": true
                     }
                 ],
+                
                 "responses": {
                     "200": {
                         "description": "get detail note",
@@ -197,7 +198,7 @@
                                         "code": {
                                             "type": "number"
                                         },
-                                        "status": {
+                                        "message": {
                                             "type": "string"
                                         },
                                         "data": {
@@ -235,32 +236,12 @@
                             }
                         }
                     },
-                    "404": {
+                    "400": {
                         "description": "User send with modif token",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "405": {
-                        "description": "User access this path using other method",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/res500"
                                 }
                             }
                         }
@@ -283,6 +264,31 @@
                         "required": true
                     }
                 ],
+                "requestBody": {
+                    "description": "user input note",
+                    "required": true,
+                    "content": {
+                        "json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "note": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "success edit note",
@@ -314,18 +320,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "User send with modif token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "405": {
-                        "description": "User access this path using other method",
+                    "422": {
+                        "description": "user not input form",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -363,15 +359,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "success edit note",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resSuccessDataString"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "success delete note"
                     },
                     "400": {
                         "description": "User send request body wrong format",
@@ -395,16 +384,6 @@
                     },
                     "404": {
                         "description": "User send with modif token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "405": {
-                        "description": "User access this path using other method",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -444,7 +423,7 @@
                                         "code": {
                                             "type": "number"
                                         },
-                                        "status": {
+                                        "message": {
                                             "type": "string"
                                         },
                                         "data": {
@@ -486,26 +465,6 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "User send with modif token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "405": {
-                        "description": "User access this path using other method",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
                     "500": {
                         "description": "Internal server error",
                         "content": {
@@ -535,10 +494,10 @@
                                     "name": {
                                         "type": "string"
                                     },
-                                    "currentPassword": {
+                                    "old_password": {
                                         "type": "string"
                                     },
-                                    "newPassword": {
+                                    "Password": {
                                         "type": "string"
                                     }
                                 }
@@ -557,6 +516,16 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "User access this path using other method",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/resErrorArray"
+                                }
+                            }
+                        }
+                    },
                     "401": {
                         "description": "User send with token expired",
                         "content": {
@@ -567,16 +536,7 @@
                             }
                         }
                     },
-                    "405": {
-                        "description": "User access this path using other method",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
+                    
                     "500": {
                         "description": "Internal server error",
                         "content": {
@@ -608,7 +568,7 @@
                                         "code": {
                                             "type": "number"
                                         },
-                                        "status": {
+                                        "message": {
                                             "type": "string"
                                         },
                                         "data": {
@@ -639,32 +599,15 @@
                             }
                         }
                     },
+                    "204": {
+                        "description": "success get data but no note"
+                    },
                     "401": {
                         "description": "User send with token expired",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "405": {
-                        "description": "User access this path using other method",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/res500"
                                 }
                             }
                         }
@@ -714,7 +657,7 @@
                                         "code": {
                                             "type": "number"
                                         },
-                                        "status": {
+                                        "message": {
                                             "type": "string"
                                         },
                                         "data": {
@@ -732,7 +675,7 @@
                                 },
                                 "example": {
                                     "code": 200,
-                                    "status": "ok",
+                                    "message": "ok",
                                     "data": {
                                         "token": "xxx",
                                         "reftoken": "yyy"
@@ -750,7 +693,7 @@
                                 },
                                 "example": {
                                     "code": 400,
-                                    "status": "bad request",
+                                    "message": "bad request",
                                     "error": [
                                         "email is not valid email : gozenx.gmail",
                                         "password min length is 8 char"
@@ -768,7 +711,7 @@
                                 },
                                 "example": {
                                     "code": 400,
-                                    "status": "bad request",
+                                    "message": "bad request",
                                     "error": [
                                         "email is not found"
                                     ]
@@ -776,8 +719,8 @@
                             }
                         }
                     },
-                    "405": {
-                        "description": "When user acces with other method",
+                    "422": {
+                        "description": "user not input form",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -795,7 +738,7 @@
                                 },
                                 "example": {
                                     "code": 500,
-                                    "status": "internal server error"
+                                    "message": "internal server error"
                                 }
                             }
                         }
@@ -854,16 +797,6 @@
                             }
                         }
                     },
-                    "405": {
-                        "description": "User access this path using other method",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
                     "409": {
                         "description": "User input email is registered",
                         "content": {
@@ -874,12 +807,12 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal server error",
+                    "422": {
+                        "description": "User not input form",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/res500"
+                                    "$ref": "#/components/schemas/resErrorArray"
                                 }
                             }
                         }
@@ -942,18 +875,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "User send with modif token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "405": {
-                        "description": "User access this path using other method",
+                    "422": {
+                        "description": "User not input form",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -964,6 +887,16 @@
                     },
                     "500": {
                         "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/res500"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Bad gateway",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -989,9 +922,6 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "email": {
-                                        "type": "string"
-                                    },
                                     "password": {
                                         "type": "string"
                                     }
@@ -1039,28 +969,8 @@
                             }
                         }
                     },
-                    "403": {
-                        "description": "User send with not valid email",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "User send with modif token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "405": {
-                        "description": "User access this path using other method",
+                    "422": {
+                        "description": "User not input form",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1168,7 +1078,7 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "refreshToken": {
+                                    "refresh_token": {
                                         "type": "string"
                                     }
                                 }
@@ -1187,7 +1097,7 @@
                                         "code": {
                                             "type": "number"
                                         },
-                                        "status": {
+                                        "message": {
                                             "type": "string"
                                         },
                                         "data": {
@@ -1223,18 +1133,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "User send with modif token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/resErrorArray"
-                                }
-                            }
-                        }
-                    },
-                    "405": {
-                        "description": "User access this path using other method",
+                    "422": {
+                        "description": "User not input form",
                         "content": {
                             "application/json": {
                                 "schema": {
