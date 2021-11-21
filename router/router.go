@@ -10,12 +10,6 @@ import (
 func SetupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 
-	// employee := api.Group("/employee")
-	// employee.Get("/", handler.GetEmployee)
-	// employee.Post("/", handler.PostEmployee)
-	// employee.Put("/:id", handler.PutEmployee)
-	// employee.Delete("/:id", handler.DeleteEmployee)
-
 	auth := api.Group("/auth")
 	auth.Post("/login", handler.PostLogin)
 	auth.Post("/register", handler.PostRegister)
@@ -30,4 +24,8 @@ func SetupRoutes(app *fiber.App) {
 	note.Get("/:id", middleware.Protected(helper.Config("KUNCI_RAHASIA")), handler.GetNoteById)
 	note.Delete("/:id", middleware.Protected(helper.Config("KUNCI_RAHASIA")), handler.DeleteNote)
 	note.Put("/:id", middleware.Protected(helper.Config("KUNCI_RAHASIA")), handler.PutNote)
+
+	profile := api.Group("/profile")
+	profile.Get("/", middleware.Protected(helper.Config("KUNCI_RAHASIA")), handler.GetProfile)
+	profile.Put("/", middleware.Protected(helper.Config("KUNCI_RAHASIA")), handler.PutProfile)
 }
