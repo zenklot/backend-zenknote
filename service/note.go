@@ -40,3 +40,16 @@ func GetNoteById(id string, email string) (*model.Note, error) {
 	}
 	return &note, nil
 }
+
+func DeleteNoteById(id string, email string) error {
+	note := model.Note{}
+	result := database.DB.Where(&model.Note{Email: email, Id: id}).Delete(&note)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("please check your note id")
+	}
+	return nil
+}

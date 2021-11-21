@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/chilts/sid"
@@ -111,4 +112,22 @@ func GetNoteById(c *fiber.Ctx) error {
 		UpdatedAt: note.UpdatedAt,
 	}
 	return helper.SendResponse(c, fiber.StatusOK, response)
+}
+
+func DeleteNote(c *fiber.Ctx) error {
+	email := c.Locals("email")
+	id := c.Params("id")
+	idReq := web.NoteRequest{Id: id}
+	notValid := helper.ValidReq(c, idReq)
+	if notValid != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, notValid)
+	}
+
+	err := service.DeleteNoteById(idReq.Id, email.(string))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, helper.StringToSlice(err.Error()))
+	}
+
+	fmt.Println(err)
+	return helper.SendResponse(c, fiber.StatusNoContent, nil)
 }

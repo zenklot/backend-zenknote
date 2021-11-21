@@ -28,4 +28,5 @@ func SetupRoutes(app *fiber.App) {
 	api.Get("/notes", middleware.Protected(helper.Config("KUNCI_RAHASIA")), handler.GetNotes)
 	note.Post("/", middleware.Protected(helper.Config("KUNCI_RAHASIA")), handler.PostNote)
 	note.Get("/:id", middleware.Protected(helper.Config("KUNCI_RAHASIA")), handler.GetNoteById)
+	note.Delete("/:id", middleware.Protected(helper.Config("KUNCI_RAHASIA")), handler.DeleteNote)
 }
