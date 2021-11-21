@@ -51,6 +51,9 @@ func PutProfile(c *fiber.Ctx) error {
 	}
 
 	user, err := service.GetUserByEmail(email.(string))
+	if err != nil {
+		return helper.SendErrorResponse(c, fiber.StatusBadRequest, helper.StringToSlice(err.Error()))
+	}
 
 	if input.OldPassword != "" {
 		passwordOld := helper.CheckPasswordHash(user.Password, input.OldPassword)
