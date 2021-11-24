@@ -4,13 +4,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func Config(key string) string {
-	err := godotenv.Load(".env")
-	ErrPanic(err)
+	// err := godotenv.Load(".env")
+	// ErrPanic(err)
+	// fmt.Println("in production", err)
 	return os.Getenv(key)
 }
 

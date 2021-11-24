@@ -1,5 +1,5 @@
 module github.com/zenklot/backend-zenknote
-
+// +heroku goVersion go1.17
 go 1.17
 
 require (
