@@ -2,15 +2,19 @@ module github.com/zenklot/backend-zenknote
 
 go 1.17
 
-require github.com/gofiber/fiber/v2 v2.22.0
+require (
+	github.com/chilts/sid v0.0.0-20190607042430-660e94789ec9
+	github.com/go-playground/validator/v10 v10.9.0
+	github.com/gofiber/fiber/v2 v2.22.0
+	github.com/gofiber/jwt/v3 v3.2.1
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
+	gorm.io/gorm v1.22.2
+)
 
 require (
-	github.com/chilts/sid v0.0.0-20190607042430-660e94789ec9 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-playground/validator/v10 v10.9.0 // indirect
-	github.com/gofiber/jwt/v3 v3.2.1 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.10.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -22,16 +26,12 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.2 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
-	gorm.io/gorm v1.22.2 // indirect
 )
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/gofiber/utils v0.1.2
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/joho/godotenv v1.4.0
 	github.com/klauspost/compress v1.13.6 // indirect
