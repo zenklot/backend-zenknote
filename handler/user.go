@@ -16,8 +16,11 @@ func GetProfile(c *fiber.Ctx) error {
 	}
 
 	userNotes, _ := service.GetNotesByEmail(email.(string))
-	
-	notes := len(*userNotes)
+	if userNotes == nil {
+		notes := 0	
+	}else{
+		notes := len(*userNotes)	
+	}
 
 	response := web.ProfileResponse{
 		Email:     userData.Email,
