@@ -12,6 +12,7 @@ func Config(key string) string {
 	// ErrPanic(err)
 	// fmt.Println("in production", err)
 	return os.Getenv(key)
+
 }
 
 func ErrPanic(err error) error {
