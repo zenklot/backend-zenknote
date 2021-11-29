@@ -65,7 +65,7 @@ func PostNote(c *fiber.Ctx) error {
 
 	tags := strings.Split(input.Tags, ",")
 	for i, t := range tags {
-		tags[i] = strings.ToLower(strings.Replace(t, " ", "", -1))
+		tags[i] = strings.Replace(t, " ", "", -1)
 	}
 	tag := strings.Join(tags, ",")
 	note := model.Note{
@@ -149,7 +149,7 @@ func PutNote(c *fiber.Ctx) error {
 
 	tags := strings.Split(input.Tags, ",")
 	for i, t := range tags {
-		tags[i] = strings.ToLower(strings.Replace(t, " ", "", -1))
+		tags[i] = strings.Replace(t, " ", "", -1)
 	}
 	tag := strings.Join(tags, ",")
 

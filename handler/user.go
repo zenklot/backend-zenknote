@@ -15,10 +15,8 @@ func GetProfile(c *fiber.Ctx) error {
 		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
 	}
 
-	userNotes, err := service.GetNotesByEmail(email.(string))
-	if err != nil {
-		return helper.SendErrorResponse(c, fiber.StatusBadRequest, helper.StringToSlice(err.Error()))
-	}
+	userNotes, _ := service.GetNotesByEmail(email.(string))
+	
 	notes := len(*userNotes)
 
 	response := web.ProfileResponse{
