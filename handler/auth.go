@@ -120,7 +120,7 @@ func PostForgetPassword(c *fiber.Ctx) error {
 		return helper.SendErrorResponse(c, fiber.StatusInternalServerError, nil)
 	}
 	tokenString := jwt.EncodeSegment([]byte(token))
-	err = helper.SendMail(email, "Forget Password", "To Renew Your Password Open This Link : <br > http://zenk-note.netlify.app/forget-password?token="+tokenString)
+	err = helper.SendMail(email, "Forget Password", "To Renew Your Password Open This Link : <br > http://zenk-note.netlify.app/repassword/"+tokenString)
 	if err != nil {
 		return helper.SendErrorResponse(c, fiber.StatusBadGateway, helper.StringToSlice(err.Error()))
 	}
