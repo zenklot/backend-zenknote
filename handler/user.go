@@ -16,7 +16,7 @@ func GetProfile(c *fiber.Ctx) error {
 	}
 
 	userNotes, _ := service.GetNotesByEmail(email.(string))
-	var notes int32
+	var notes int
 	if userNotes == nil {
 		notes = 0	
 	}else{
