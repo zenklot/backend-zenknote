@@ -15,7 +15,7 @@
     },
     "servers": [
         {
-            "url": "https://api.zenklot/note/"
+            "url": "https://be-zenk-note.herokuapp.com/"
         }
     ],
     "components": {
@@ -935,7 +935,10 @@
                         "name": "token",
                         "in": "query",
                         "required": true,
-                        "description": "Token get from email"
+                        "description": "Token get from email",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
